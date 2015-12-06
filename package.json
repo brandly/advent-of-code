@@ -1,0 +1,16 @@
+{
+  "name": "advent-of-code",
+  "private": true,
+  "version": "1.0.0",
+  "description": "",
+  "main": "null",
+  "dependencies": {
+    "md5": "2.0.0"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "MIT"
+}
