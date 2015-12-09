@@ -5,6 +5,7 @@
   "description": "",
   "main": "null",
   "dependencies": {
+    "js-combinatorics": "0.5.0",
     "md5": "2.0.0"
   },
   "devDependencies": {},
