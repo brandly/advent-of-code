@@ -43,3 +43,38 @@ while (!match) {
 }
 
 console.log('match', match)
+
+// worst name
+function sumOfFactorsFirstFifty (x) {
+  let result = 0
+  let squareRoot = Math.sqrt(x)
+  for (let i = 1; i <= squareRoot; i++) {
+    if (x % i === 0) {
+      if (x <= i * 50) {
+        result += i
+      }
+      const corresponding = x / i
+      if (corresponding !== i && x <= corresponding * 50) {
+        result += x / i
+      }
+    }
+  }
+  return result
+}
+
+function presentsForHouse2 (number) {
+  return sumOfFactorsFirstFifty(number) * 11
+}
+
+match = null, i = 1
+while (!match) {
+  const presents = presentsForHouse2(i)
+
+  if (presents >= goal) {
+    match = i
+  }
+
+  i++
+}
+
+console.log('match 2', match)
