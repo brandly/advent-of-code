@@ -98,10 +98,6 @@ class Parser {
       char = this._consume()
     }
   }
-
-  _prev () {
-    return this._input[this._index - 2] || null
-  }
 }
 
 assert.deepEqual(new Parser('<>').ast(), [])
