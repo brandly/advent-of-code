@@ -123,3 +123,5 @@ assert.equal(knotHash('1,2,3').length, 32)
 assert.equal(knotHash('1,2,3'), '3efbe78a8d82f29979031a4aa0b16a9d')
 
 console.log(knotHash(rawInput))
+
+module.exports = { knotHash }
