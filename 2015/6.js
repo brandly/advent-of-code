@@ -1,12 +1,11 @@
 'use strict'
-const fs = require('fs')
-const input = fs.readFileSync('./6-input.txt').toString().trim()
+const input = require('./read-input')(6)
 
-function num (x) {
+function num(x) {
   return parseInt(x, 10)
 }
 
-function range (len) {
+function range(len) {
   const result = []
   for (let i = 0; i < len; i++) {
     result.push(null)
@@ -15,7 +14,7 @@ function range (len) {
 }
 
 class Point {
-  constructor (x, y) {
+  constructor(x, y) {
     this.x = x
     this.y = y
   }
@@ -23,7 +22,7 @@ class Point {
 
 const lineRegex = /([a-z ]*)([0-9]*),([0-9]*)([a-z ]*)([0-9,]*),([0-9]*)/
 
-const transformations = input.split('\n').map((line => {
+const transformations = input.split('\n').map(line => {
   const matches = lineRegex.exec(line)
 
   return {
@@ -31,10 +30,10 @@ const transformations = input.split('\n').map((line => {
     start: new Point(num(matches[2]), num(matches[3])),
     end: new Point(num(matches[5]), num(matches[6]))
   }
-}))
+})
 
 class Board {
-  constructor (width, height, initial) {
+  constructor(width, height, initial) {
     this.width = width
     this.height = height
 
@@ -45,7 +44,7 @@ class Board {
     })
   }
 
-  applyToRange (pointA, pointB, action) {
+  applyToRange(pointA, pointB, action) {
     const minX = Math.min(pointA.x, pointB.x)
     const maxX = Math.max(pointA.x, pointB.x)
 
@@ -61,26 +60,26 @@ class Board {
 }
 
 const actionFnMap = {
-  'turn on': function () {
+  'turn on': function() {
     return true
   },
-  'turn off': function () {
+  'turn off': function() {
     return false
   },
-  'toggle': function (current) {
+  toggle: function(current) {
     return !current
   }
 }
 
 const board = new Board(1000, 1000, false)
 
-transformations.forEach((transform) => {
+transformations.forEach(transform => {
   const action = actionFnMap[transform.action]
   board.applyToRange(transform.start, transform.end, action)
 })
 
 let totalLightsOn = 0
-board.applyToRange(new Point(0, 0), new Point(999, 999), (isOn) => {
+board.applyToRange(new Point(0, 0), new Point(999, 999), isOn => {
   if (isOn) {
     totalLightsOn += 1
   }
@@ -90,26 +89,26 @@ board.applyToRange(new Point(0, 0), new Point(999, 999), (isOn) => {
 console.log(totalLightsOn)
 
 const actionFnMap2 = {
-  'turn on': function (current) {
+  'turn on': function(current) {
     return current + 1
   },
-  'turn off': function (current) {
+  'turn off': function(current) {
     return Math.max(current - 1, 0)
   },
-  'toggle': function (current) {
+  toggle: function(current) {
     return current + 2
   }
 }
 
 const board2 = new Board(1000, 1000, 0)
 
-transformations.forEach((transform) => {
+transformations.forEach(transform => {
   const action = actionFnMap2[transform.action]
   board2.applyToRange(transform.start, transform.end, action)
 })
 
 let totalLightsOn2 = 0
-board2.applyToRange(new Point(0, 0), new Point(999, 999), (value) => {
+board2.applyToRange(new Point(0, 0), new Point(999, 999), value => {
   totalLightsOn2 += value
 })
 

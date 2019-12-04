@@ -1,32 +1,28 @@
-const fs = require('fs')
-
-function sortNumber (a, b) {
+function sortNumber(a, b) {
   return a - b
 }
 
-function sum (arr) {
+function sum(arr) {
   return arr.reduce((previous, current) => {
     return previous + current
   }, 0)
 }
 
-const input = fs.readFileSync('./2-input.txt').toString().trim()
+const input = require('./read-input')(2)
 
-const dimensions = input.split('\n').map((line) => {
+const dimensions = input.split('\n').map(line => {
   return line.split('x').map(num => {
     return parseInt(num, 10)
   })
 })
 
-const sortedSideAreas = dimensions.map((edges) => {
-  return [
-    edges[0] * edges[1],
-    edges[1] * edges[2],
-    edges[2] * edges[0]
-  ].sort(sortNumber)
+const sortedSideAreas = dimensions.map(edges => {
+  return [edges[0] * edges[1], edges[1] * edges[2], edges[2] * edges[0]].sort(
+    sortNumber
+  )
 })
 
-const requiredWrappings = sortedSideAreas.map((sides) => {
+const requiredWrappings = sortedSideAreas.map(sides => {
   const smallestSide = sides[0]
 
   const boxArea = sides.reduce((previous, current) => {
@@ -41,7 +37,7 @@ const totalPaper = sum(requiredWrappings)
 // Part 1
 console.log(totalPaper)
 
-const ribbonLengths = dimensions.map((sides) => {
+const ribbonLengths = dimensions.map(sides => {
   sides.sort(sortNumber)
 
   const smallestSide = sides[0]

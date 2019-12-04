@@ -1,17 +1,15 @@
-const fs = require('fs')
-
-const input = fs.readFileSync('./3-input.txt').toString().trim()
+const input = require('./read-input')(3)
 
 var x = 0
 var y = 0
 const tracker = {}
 
-function trackPackageAtCurrentLocation () {
+function trackPackageAtCurrentLocation() {
   const key = x.toString() + 'x' + y.toString()
   tracker[key] = true
 }
 
-function updateCoordsForChar (char) {
+function updateCoordsForChar(char) {
   switch (char) {
     case '^':
       y += 1

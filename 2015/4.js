@@ -2,7 +2,7 @@
 const md5 = require('md5')
 const input = 'ckczppom'
 
-function findMatch (query) {
+function findMatch(query) {
   let match = null
 
   for (let guess = 0; !match; guess++) {

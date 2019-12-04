@@ -1,31 +1,29 @@
 'use strict'
-const fs = require('fs')
-
-const input = fs.readFileSync('./3-input.txt').toString().trim()
+const input = require('./read-input')(3)
 
 class Tracker {
-  constructor () {
+  constructor() {
     this._tracker = {}
   }
 
-  trackLocation (x, y) {
+  trackLocation(x, y) {
     const key = x.toString() + 'x' + y.toString()
     this._tracker[key] = true
   }
 
-  getLocationCount () {
+  getLocationCount() {
     return Object.keys(this._tracker).length
   }
 }
 
 class Santa {
-  constructor (tracker) {
+  constructor(tracker) {
     this.x = 0
     this.y = 0
     this.tracker = tracker
   }
 
-  moveByChar (char) {
+  moveByChar(char) {
     switch (char) {
       case '^':
         this.moveUp()
@@ -45,27 +43,27 @@ class Santa {
     }
   }
 
-  moveUp () {
+  moveUp() {
     this.y += 1
     this._trackLocation()
   }
 
-  moveRight () {
+  moveRight() {
     this.x += 1
     this._trackLocation()
   }
 
-  moveDown () {
+  moveDown() {
     this.y -= 1
     this._trackLocation()
   }
 
-  moveLeft () {
+  moveLeft() {
     this.x -= 1
     this._trackLocation()
   }
 
-  _trackLocation () {
+  _trackLocation() {
     this.tracker.trackLocation(this.x, this.y)
   }
 }
