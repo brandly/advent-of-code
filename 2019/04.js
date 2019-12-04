@@ -4,7 +4,7 @@ const { range } = require('lodash')
 const input = '197487-673251'
 const [floor, ceiling] = input.split('-').map(v => parseInt(v))
 
-const adjacentMatch = (v) => {
+const adjacentMatch = v => {
   let chars = v.toString().split('')
   for (let i = 1; i < chars.length; i++) {
     if (chars[i] === chars[i - 1]) return true
@@ -12,7 +12,7 @@ const adjacentMatch = (v) => {
   return false
 }
 
-const alwaysIncrease = (v) => {
+const alwaysIncrease = v => {
   let chars = v.toString().split('')
   for (let i = 1; i < chars.length; i++) {
     if (chars[i] < chars[i - 1]) return false
@@ -27,9 +27,12 @@ assert(!alwaysIncrease(223450))
 assert(!adjacentMatch(123789))
 assert(alwaysIncrease(123789))
 
-console.log(range(floor, ceiling + 1).filter(v => adjacentMatch(v) && alwaysIncrease(v)).length)
+console.log(
+  range(floor, ceiling + 1).filter(v => adjacentMatch(v) && alwaysIncrease(v))
+    .length
+)
 
-const adjacentMatchPairs = (v) => {
+const adjacentMatchPairs = v => {
   let chars = v.toString().split('')
   let count = 0
   let i = 1
@@ -59,4 +62,8 @@ assert(alwaysIncrease(123444))
 assert(adjacentMatchPairs(111122))
 assert(alwaysIncrease(111122))
 
-console.log(range(floor, ceiling + 1).filter(v => adjacentMatchPairs(v) && alwaysIncrease(v)).length)
+console.log(
+  range(floor, ceiling + 1).filter(
+    v => adjacentMatchPairs(v) && alwaysIncrease(v)
+  ).length
+)

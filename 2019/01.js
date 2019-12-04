@@ -1,7 +1,8 @@
 const fs = require('fs')
 const assert = require('assert')
 
-const nums = fs.readFileSync('./2019/01.txt')
+const nums = fs
+  .readFileSync('./2019/01.txt')
   .toString()
   .trim()
   .split('\n')
@@ -9,8 +10,7 @@ const nums = fs.readFileSync('./2019/01.txt')
 
 const fuel = n => Math.floor(n / 3) - 2
 
-const sum = list =>
-  list.reduce((a, b) => a + b, 0)
+const sum = list => list.reduce((a, b) => a + b, 0)
 
 console.log('pt 1:', sum(nums.map(fuel)))
 

@@ -1,7 +1,8 @@
 const fs = require('fs')
 const assert = require('assert')
 
-const nums = fs.readFileSync('./2019/02.txt')
+const nums = fs
+  .readFileSync('./2019/02.txt')
   .toString()
   .trim()
   .split(',')
@@ -12,7 +13,7 @@ const program = input => {
   // instruction pointer
   let index = 0
 
-  while(tape[index] !== 99) {
+  while (tape[index] !== 99) {
     switch (tape[index]) {
       case 1: {
         let [a, b, out] = programValues(tape, index)
@@ -28,20 +29,33 @@ const program = input => {
       }
       default: {
         throw new Error(`Unexpected value ${tape[index]}`)
-       }
+      }
     }
   }
 
   return tape
 }
 
-const programValues = (tape, index) =>
-  [tape[tape[index + 1]], tape[tape[index + 2]], tape[index + 3]]
+const programValues = (tape, index) => [
+  tape[tape[index + 1]],
+  tape[tape[index + 2]],
+  tape[index + 3]
+]
 
-assert.deepEqual(program([1,0,0,0,99]), [2,0,0,0,99])
-assert.deepEqual(program([2,3,0,3,99]), [2,3,0,6,99])
-assert.deepEqual(program([2,4,4,5,99,0]), [2,4,4,5,99,9801])
-assert.deepEqual(program([1,1,1,4,99,5,6,0,99]), [30,1,1,4,2,5,6,0,99])
+assert.deepEqual(program([1, 0, 0, 0, 99]), [2, 0, 0, 0, 99])
+assert.deepEqual(program([2, 3, 0, 3, 99]), [2, 3, 0, 6, 99])
+assert.deepEqual(program([2, 4, 4, 5, 99, 0]), [2, 4, 4, 5, 99, 9801])
+assert.deepEqual(program([1, 1, 1, 4, 99, 5, 6, 0, 99]), [
+  30,
+  1,
+  1,
+  4,
+  2,
+  5,
+  6,
+  0,
+  99
+])
 
 const withInputs = (a, b) => {
   const alarm = nums.slice(0)
