@@ -2,7 +2,7 @@ const fs = require('fs')
 const assert = require('assert')
 
 const nums = fs
-  .readFileSync('./2019/02.txt')
+  .readFileSync(`${__dirname}/02.txt`)
   .toString()
   .trim()
   .split(',')

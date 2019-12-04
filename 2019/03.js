@@ -10,7 +10,7 @@ const fromLine = line =>
   })
 
 const [first, second] = fs
-  .readFileSync('./2019/03.txt')
+  .readFileSync(`${__dirname}/03.txt`)
   .toString()
   .trim()
   .split('\n')
