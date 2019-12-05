@@ -44,6 +44,36 @@ const programWithOutputs = (instructions, inputs = []) => {
         index += 2
         break
       }
+      case 5: {
+        let param = readTape(tape, index + 1, modes[0])
+        if (param !== 0) {
+          index = readTape(tape, index + 2, modes[1])
+        } else {
+          index += 3
+        }
+        break
+      }
+      case 6: {
+        let param = readTape(tape, index + 1, modes[0])
+        if (param === 0) {
+          index = readTape(tape, index + 2, modes[1])
+        } else {
+          index += 3
+        }
+        break
+      }
+      case 7: {
+        let [first, second, third] = programValues(tape, index, modes)
+        tape[third] = first < second ? 1 : 0
+        index += 4
+        break
+      }
+      case 8: {
+        let [first, second, third] = programValues(tape, index, modes)
+        tape[third] = first === second ? 1 : 0
+        index += 4
+        break
+      }
       default: {
         throw new Error(`Unexpected value ${tape[index]}`)
       }
