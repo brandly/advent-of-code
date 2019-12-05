@@ -8,23 +8,40 @@ const nums = fs
   .split(',')
   .map(n => parseInt(n))
 
-const program = input => {
-  let tape = input.slice(0)
+const programWithOutputs = (instructions, inputs = []) => {
+  let tape = instructions.slice(0)
   // instruction pointer
   let index = 0
+  let outputs = []
+
+  let inputIndex = 0
+  const nextInput = () => inputs[inputIndex++]
 
   while (tape[index] !== 99) {
-    switch (tape[index]) {
+    let [op, modes] = readOp(tape, index)
+    switch (op) {
       case 1: {
-        let [a, b, out] = programValues(tape, index)
+        let [a, b, out] = programValues(tape, index, modes)
         tape[out] = a + b
         index += 4
         break
       }
       case 2: {
-        let [a, b, out] = programValues(tape, index)
+        let [a, b, out] = programValues(tape, index, modes)
         tape[out] = a * b
         index += 4
+        break
+      }
+      case 3: {
+        let input = nextInput()
+        let address = tape[index + 1]
+        tape[address] = input
+        index += 2
+        break
+      }
+      case 4: {
+        outputs.push(readTape(tape, index + 1, modes[0]))
+        index += 2
         break
       }
       default: {
@@ -33,14 +50,45 @@ const program = input => {
     }
   }
 
+  return [tape, outputs]
+}
+
+const readOp = (tape, index) => {
+  let val = tape[index]
+  if (val >= 10) {
+    let op = val % 10
+    let modes = ((val - op) / 100)
+      .toString()
+      .split('')
+      .map(char => parseInt(char))
+      .reverse()
+    return [op, modes]
+  } else {
+    return [val, []]
+  }
+}
+
+const program = instructions => {
+  let [tape, _] = programWithOutputs(instructions)
   return tape
 }
 
-const programValues = (tape, index) => [
-  tape[tape[index + 1]],
-  tape[tape[index + 2]],
+module.exports = { program, programWithOutputs }
+
+const programValues = (tape, index, modes = []) => [
+  readTape(tape, index + 1, modes[0]),
+  readTape(tape, index + 2, modes[1]),
   tape[index + 3]
 ]
+
+const readTape = (tape, index, mode = 0) => {
+  switch (mode) {
+    case 0:
+      return tape[tape[index]]
+    case 1:
+      return tape[index]
+  }
+}
 
 assert.deepEqual(program([1, 0, 0, 0, 99]), [2, 0, 0, 0, 99])
 assert.deepEqual(program([2, 3, 0, 3, 99]), [2, 3, 0, 6, 99])
