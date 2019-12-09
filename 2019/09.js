@@ -1,7 +1,5 @@
 const fs = require('fs')
 const assert = require('assert')
-const { some, range, sortBy, every } = require('lodash')
-const { permutation } = require('js-combinatorics')
 const { programWithOutputs, Program } = require('./02.js')
 
 const parse = input => input.split(',').map(n => parseInt(n))
