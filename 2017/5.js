@@ -1,7 +1,8 @@
 const fs = require('fs')
 const assert = require('assert')
 
-const input = fs.readFileSync('./5.txt', 'utf-8')
+const input = fs
+  .readFileSync(`${__dirname}/5.txt`, 'utf-8')
   .trim()
   .split('\n')
   .map(n => parseInt(n, 10))
@@ -28,6 +29,6 @@ const stepCount = input => {
   return steps
 }
 
-// assert.equal(stepCount([0, 3,  0,  1, -3]), 5)
+// assert.equal(stepCount([0, 3, 0, 1, -3]), 5)
 
 console.log(stepCount(input))

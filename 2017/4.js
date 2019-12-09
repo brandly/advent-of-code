@@ -1,7 +1,8 @@
 const fs = require('fs')
 const assert = require('assert')
 
-const input = fs.readFileSync('./4.txt', 'utf-8')
+const input = fs
+  .readFileSync(`${__dirname}/4.txt`, 'utf-8')
   .trim()
   .split('\n')
 
@@ -21,7 +22,10 @@ const isValid2 = passphrase => {
   const words = passphrase.split(' ')
   const s = {}
   for (var i = 0; i < words.length; i++) {
-    const word = words[i].split('').sort().join('')
+    const word = words[i]
+      .split('')
+      .sort()
+      .join('')
     if (s[word]) return false
     s[word] = true
   }

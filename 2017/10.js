@@ -2,22 +2,25 @@ const fs = require('fs')
 const assert = require('assert')
 const { range } = require('lodash')
 
-const rawInput =
-  fs.readFileSync('./10.txt', 'utf-8')
-    .trim()
+const rawInput = fs.readFileSync(`${__dirname}/10.txt`, 'utf-8').trim()
 
 const exampleIn = [3, 4, 1, 5]
 
-function part1 (sequence, listSize) {
+function part1(sequence, listSize) {
   let currentPosition = 0
   let skipSize = 0
 
-  const { updated } = step({ currentPosition, skipSize, sequence, list: range(listSize) })
+  const { updated } = step({
+    currentPosition,
+    skipSize,
+    sequence,
+    list: range(listSize)
+  })
 
   return updated[0] * updated[1]
 }
 
-function step ({ currentPosition, skipSize, sequence, list }) {
+function step({ currentPosition, skipSize, sequence, list }) {
   const updated = sequence.reduce((list, length) => {
     const sublist = getSublist({ currentPosition, length, list })
     sublist.reverse()
@@ -44,7 +47,7 @@ assert.deepEqual(
   getSublist({ currentPosition: 3, length: 4, list: [2, 1, 0, 3, 4] }),
   [3, 4, 2, 1]
 )
-function getSublist ({ currentPosition, length, list }) {
+function getSublist({ currentPosition, length, list }) {
   const sublist = []
   for (
     let i = currentPosition, count = 0;
@@ -56,7 +59,7 @@ function getSublist ({ currentPosition, length, list }) {
   return sublist
 }
 
-function applySublist ({ list, sublist, currentPosition }) {
+function applySublist({ list, sublist, currentPosition }) {
   const clone = list.slice()
   while (sublist.length) {
     const val = sublist.shift()
@@ -69,7 +72,7 @@ function applySublist ({ list, sublist, currentPosition }) {
 assert.equal(part1(exampleIn, 5), 12)
 console.log(part1(rawInput.split(',').map(n => parseInt(n, 10)), 256))
 
-function sparseHash (sequence, listSize) {
+function sparseHash(sequence, listSize) {
   let currentPosition = 0
   let skipSize = 0
   let list = range(listSize)
@@ -85,8 +88,9 @@ function sparseHash (sequence, listSize) {
   return list
 }
 
-function knotHash (input) {
-  const sequence = input.split('')
+function knotHash(input) {
+  const sequence = input
+    .split('')
     .map(char => char.charCodeAt(0))
     .concat([17, 31, 73, 47, 23])
   let sparse = sparseHash(sequence, 256)
@@ -102,16 +106,18 @@ function knotHash (input) {
   return toHex(dense)
 }
 
-function toHex (list) {
-  return list.map(n => {
-    const hex = n.toString(16)
-    return hex.length === 1 ? ('0' + hex) : hex
-  }).join('')
+function toHex(list) {
+  return list
+    .map(n => {
+      const hex = n.toString(16)
+      return hex.length === 1 ? '0' + hex : hex
+    })
+    .join('')
 }
 
 assert.equal(toHex([64, 7, 255]), '4007ff')
 
-function xor (list) {
+function xor(list) {
   return list.reduce((a, b) => {
     return a ^ b
   }, 0)

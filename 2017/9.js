@@ -1,21 +1,21 @@
 const fs = require('fs')
 const assert = require('assert')
-const input = fs.readFileSync('./9.txt', 'utf-8')
+const input = fs.readFileSync(`${__dirname}/9.txt`, 'utf-8')
 
 class Parser {
-  constructor (input) {
+  constructor(input) {
     this._input = input.trim()
     this._tokens = []
     this._index = 0
     this._garbageCount = 0
   }
 
-  countGarbage () {
+  countGarbage() {
     this.ast()
     return this._garbageCount
   }
 
-  ast () {
+  ast() {
     if (this._tokens.length) return this._tokens
 
     while (this._index < this._input.length) {
@@ -26,7 +26,7 @@ class Parser {
     return this._tokens.filter(Boolean)
   }
 
-  _parseToken (score) {
+  _parseToken(score) {
     const char = this._consume()
 
     switch (char) {
@@ -41,7 +41,7 @@ class Parser {
     }
   }
 
-  _parseGroup (score) {
+  _parseGroup(score) {
     const kids = []
 
     while (this._peek() !== '}') {
@@ -67,17 +67,17 @@ class Parser {
     }
   }
 
-  _peek () {
+  _peek() {
     return this._input[this._index]
   }
 
-  _consume () {
+  _consume() {
     const char = this._input[this._index]
     this._index += 1
     return char
   }
 
-  _parseGarbage () {
+  _parseGarbage() {
     let char = this._consume()
     let ignore = false
     while (char) {
@@ -109,10 +109,12 @@ assert.deepEqual(new Parser('<!!!>>').ast(), [])
 assert.deepEqual(new Parser('<{o"i!a,<{i<a>').ast(), [])
 
 const nested = new Parser('{{{}}}').ast()
-assert.deepEqual(nested, [{
-  score: 1,
-  kids: [{ score: 2, kids: [{ score: 3, kids: [] }] }]
-}])
+assert.deepEqual(nested, [
+  {
+    score: 1,
+    kids: [{ score: 2, kids: [{ score: 3, kids: [] }] }]
+  }
+])
 
 const totalScore = ast =>
   ast.reduce((total, group) => {
@@ -124,5 +126,5 @@ assert.equal(totalScore(nested), 6)
 const parser = new Parser(input)
 console.log({
   part1: totalScore(parser.ast()),
-  part2: parser.countGarbage(),
+  part2: parser.countGarbage()
 })

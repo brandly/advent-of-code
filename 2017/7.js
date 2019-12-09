@@ -1,8 +1,7 @@
 const fs = require('fs')
 const assert = require('assert')
 const { memoize, groupBy } = require('lodash')
-const input = fs.readFileSync('./7.txt', 'utf-8')
-  .trim()
+const input = fs.readFileSync(`${__dirname}/7.txt`, 'utf-8').trim()
 
 const parse = str => {
   // Node {
@@ -14,7 +13,9 @@ const parse = str => {
   const nodes = lines.map(line => {
     const [idAndWeight, potentialKids] = line.split(' -> ')
     const kids = potentialKids ? potentialKids.split(', ') : []
-    const [id, almostWeight] = idAndWeight.slice(0, idAndWeight.length - 1).split(' (')
+    const [id, almostWeight] = idAndWeight
+      .slice(0, idAndWeight.length - 1)
+      .split(' (')
 
     return {
       id,
@@ -58,14 +59,16 @@ const idealWeight = nodes => {
   const { kids } = bottom
 
   const weightOfTower = t =>
-    t.weight + t.kids.reduce((weight, id) => {
+    t.weight +
+    t.kids.reduce((weight, id) => {
       return weight + weightOfTower(getNodeById(id))
     }, 0)
 
   const findProblem = (t, parent) => {
-    const towerWeights = t.kids.map(id =>
-      ({ weight: weightOfTower(getNodeById(id)), tower: getNodeById(id) })
-    )
+    const towerWeights = t.kids.map(id => ({
+      weight: weightOfTower(getNodeById(id)),
+      tower: getNodeById(id)
+    }))
     const grouped = groupBy(towerWeights, 'weight')
 
     if (Object.keys(grouped).length === 1) {
@@ -82,8 +85,14 @@ const idealWeight = nodes => {
   const { problem, parent } = findProblem(bottom)
   const weights = parent.kids.map(id => weightOfTower(getNodeById(id)))
   const grouped = groupBy(weights)
-  const desired = parseInt(Object.keys(groupBy(weights)).find(key => grouped[key].length !== 1), 10)
-  const real = parseInt(Object.keys(groupBy(weights)).find(key => grouped[key].length === 1), 10)
+  const desired = parseInt(
+    Object.keys(groupBy(weights)).find(key => grouped[key].length !== 1),
+    10
+  )
+  const real = parseInt(
+    Object.keys(groupBy(weights)).find(key => grouped[key].length === 1),
+    10
+  )
   return problem.weight - (real - desired)
 }
 

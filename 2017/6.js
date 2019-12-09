@@ -1,7 +1,8 @@
 const fs = require('fs')
 const assert = require('assert')
 
-const input = fs.readFileSync('./6.txt', 'utf-8')
+const input = fs
+  .readFileSync(`${__dirname}/6.txt`, 'utf-8')
   .trim()
   .split('\t')
   .map(n => parseInt(n, 10))
@@ -40,7 +41,9 @@ assert.deepEqual(cycle([2, 4, 1, 2]), [3, 1, 2, 3])
 const redistributionCount = list => {
   const hash = l => l.join('$')
   const memory = {}
-  const add = l => { memory[hash(l)] = true }
+  const add = l => {
+    memory[hash(l)] = true
+  }
   const hasSeen = l => memory[hash(l)] || false
   let count = 0
   while (!hasSeen(list)) {
@@ -57,7 +60,9 @@ console.log(redistributionCount(input))
 const sizeOfLoop = list => {
   const hash = l => l.join('$')
   const memory = {}
-  const add = (l, i) => { memory[hash(l)] = i }
+  const add = (l, i) => {
+    memory[hash(l)] = i
+  }
   const hasSeen = l => memory.hasOwnProperty(hash(l))
   let count = 0
   while (!hasSeen(list)) {

@@ -1,19 +1,19 @@
 const fs = require('fs')
 const assert = require('assert')
-const input = fs.readFileSync('./11.txt', 'utf-8').trim()
+const input = fs.readFileSync(`${__dirname}/11.txt`, 'utf-8').trim()
 
 class Cube {
-  constructor (x, y, z) {
+  constructor(x, y, z) {
     this.x = x
     this.y = y
     this.z = z
   }
 
-  add (cube) {
+  add(cube) {
     return new Cube(this.x + cube.x, this.y + cube.y, this.z + cube.z)
   }
 
-  step (direction) {
+  step(direction) {
     return this.add(cubeDirections[direction])
   }
 }
@@ -24,7 +24,7 @@ const cubeDirections = {
   se: new Cube(1, -1, 0),
   s: new Cube(0, -1, 1),
   sw: new Cube(-1, 0, 1),
-  nw: new Cube(-1, 1, 0),
+  nw: new Cube(-1, 1, 0)
 }
 
 const applySteps = steps =>

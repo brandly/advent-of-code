@@ -2,18 +2,19 @@ const fs = require('fs')
 const assert = require('assert')
 const { memoize } = require('lodash')
 
-const input = fs.readFileSync('./13.txt', 'utf-8').trim()
+const input = fs.readFileSync(`${__dirname}/13.txt`, 'utf-8').trim()
 const example = `0: 3
 1: 2
 4: 4
 6: 4`
 
-const parse = input => input.split('\n').reduce((result, line) => {
-  const [left, right] = line.split(': ')
-  return Object.assign(result, {
-    [left]: parseInt(right, 10)
-  })
-}, {})
+const parse = input =>
+  input.split('\n').reduce((result, line) => {
+    const [left, right] = line.split(': ')
+    return Object.assign(result, {
+      [left]: parseInt(right, 10)
+    })
+  }, {})
 
 assert.deepEqual(parse(example), {
   '0': 3,
@@ -28,33 +29,37 @@ const buildWalls = input => {
   const max = Math.max.apply(Math, indexesWithWall)
 
   return new Array(max + 1).fill(null).map((val, index) =>
-    walls[index] ? {
-      range: walls[index],
-      security: {
-        index: 0,
-        direction: 1
-      }
-    } : val
+    walls[index]
+      ? {
+          range: walls[index],
+          security: {
+            index: 0,
+            direction: 1
+          }
+        }
+      : val
   )
 }
 
 const advanceSecurity = walls => {
   return walls.map(wall => {
-    const { range, security = {} } = (wall || {})
+    const { range, security = {} } = wall || {}
     const index = security.index + security.direction
 
     let direction = security.direction
-    if (index === 0 || index === (range - 1)) {
+    if (index === 0 || index === range - 1) {
       direction = direction * -1
     }
 
-    return wall ? {
-      range,
-      security: {
-        index,
-        direction
-      }
-    } : null
+    return wall
+      ? {
+          range,
+          security: {
+            index,
+            direction
+          }
+        }
+      : null
   })
 }
 
@@ -118,14 +123,16 @@ const gotCaught = (delay, wall) =>
 assert.equal(gotCaught(0, { depth: 0, range: 3 }), true)
 
 const part2 = walls => {
-  const wallsNoGaps = walls.map((wall, index) => {
-    if (!wall) return null
+  const wallsNoGaps = walls
+    .map((wall, index) => {
+      if (!wall) return null
 
-    return {
-      depth: index,
-      range: wall.range
-    }
-  }).filter(Boolean)
+      return {
+        depth: index,
+        range: wall.range
+      }
+    })
+    .filter(Boolean)
 
   const anyCaught = (walls, delay) => {
     for (let i = 0; i < walls.length; i++) {

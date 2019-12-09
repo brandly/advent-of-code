@@ -1,24 +1,23 @@
 const fs = require('fs')
-const rawInput = fs.readFileSync('./8.txt', 'utf-8').trim()
+const rawInput = fs.readFileSync(`${__dirname}/8.txt`, 'utf-8').trim()
 
 // polyfill lol
 Object.values = obj => Object.keys(obj).map(key => obj[key])
 
 const parse = str =>
-  str.split('\n')
-    .map(line => {
-      const tokens = line.split(' ')
-      return {
-        key: tokens[0],
-        op: tokens[1],
-        amount: parseInt(tokens[2], 10),
-        cond: {
-          key: tokens[4],
-          op: tokens[5],
-          amount: parseInt(tokens[6])
-        }
+  str.split('\n').map(line => {
+    const tokens = line.split(' ')
+    return {
+      key: tokens[0],
+      op: tokens[1],
+      amount: parseInt(tokens[2], 10),
+      cond: {
+        key: tokens[4],
+        op: tokens[5],
+        amount: parseInt(tokens[6])
       }
-    })
+    }
+  })
 
 const compare = (op, a, b) => {
   switch (op) {
