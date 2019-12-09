@@ -14,7 +14,7 @@ const operations = fs
   .map(n => parseInt(n))
 
 const run = (operations, inputs) => {
-  let [_, outputs] = programWithOutputs(operations, inputs)
+  let { outputs } = programWithOutputs(operations, inputs)
   assert(outputs.length === 1)
   return outputs[0]
 }

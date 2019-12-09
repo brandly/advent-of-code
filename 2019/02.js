@@ -15,6 +15,7 @@ class Program {
     this.inputs = inputs
     this.outputs = []
     this.inputIndex = 0
+    this.relativeBase = 0
   }
 
   send(inputs) {
@@ -51,61 +52,99 @@ class Program {
     return this.tape[this.index] === 99
   }
 
+  readTape = (index, mode = 0) => {
+    const get = i => {
+      if (i < 0) throw new Error('Cannot get negative index')
+      return this.tape[i] || 0
+    }
+
+    switch (mode) {
+      // position mode
+      case 0:
+        return get(get(index))
+      // parameter mode
+      case 1:
+        return get(index)
+      // relative mode
+      case 2:
+        return get(get(index) + this.relativeBase)
+    }
+  }
+
+  setTape = (index, value, mode = 0) => {
+    let adjusted = mode === 2 ? index + this.relativeBase : index
+    if (adjusted < 0) {
+      throw new Error(`Cannot set negative index ${adjusted} -> ${value}`)
+    }
+    this.tape[adjusted] = value
+  }
+
+  threeParams = (modes = []) => [
+    this.readTape(this.index + 1, modes[0]),
+    this.readTape(this.index + 2, modes[1]),
+    this.tape[this.index + 3] || 0
+  ]
+
   step() {
     let [op, modes] = this.readOp()
     switch (op) {
       case 1: {
-        let [a, b, out] = programValues(this.tape, this.index, modes)
-        this.tape[out] = a + b
+        let [a, b, out] = this.threeParams(modes)
+        this.setTape(out, a + b, modes[2])
         this.index += 4
         break
       }
       case 2: {
-        let [a, b, out] = programValues(this.tape, this.index, modes)
-        this.tape[out] = a * b
+        let [a, b, out] = this.threeParams(modes)
+        this.setTape(out, a * b, modes[2])
         this.index += 4
         break
       }
       case 3: {
         let input = this.nextInput()
         let address = this.tape[this.index + 1]
-        this.tape[address] = input
+        this.setTape(address, input, modes[0])
         this.index += 2
         break
       }
       case 4: {
-        this.outputs.push(readTape(this.tape, this.index + 1, modes[0]))
+        this.outputs.push(this.readTape(this.index + 1, modes[0]))
         this.index += 2
         break
       }
       case 5: {
-        let param = readTape(this.tape, this.index + 1, modes[0])
+        let param = this.readTape(this.index + 1, modes[0])
         if (param !== 0) {
-          this.index = readTape(this.tape, this.index + 2, modes[1])
+          this.index = this.readTape(this.index + 2, modes[1])
         } else {
           this.index += 3
         }
         break
       }
       case 6: {
-        let param = readTape(this.tape, this.index + 1, modes[0])
+        let param = this.readTape(this.index + 1, modes[0])
         if (param === 0) {
-          this.index = readTape(this.tape, this.index + 2, modes[1])
+          this.index = this.readTape(this.index + 2, modes[1])
         } else {
           this.index += 3
         }
         break
       }
       case 7: {
-        let [first, second, third] = programValues(this.tape, this.index, modes)
-        this.tape[third] = first < second ? 1 : 0
+        let [first, second, third] = this.threeParams(modes)
+        this.setTape(third, first < second ? 1 : 0, modes[2])
         this.index += 4
         break
       }
       case 8: {
-        let [first, second, third] = programValues(this.tape, this.index, modes)
-        this.tape[third] = first === second ? 1 : 0
+        let [first, second, third] = this.threeParams(modes)
+        this.setTape(third, first === second ? 1 : 0, modes[2])
         this.index += 4
+        break
+      }
+      case 9: {
+        this.relativeBase += this.readTape(this.index + 1, modes[0])
+        this.index += 2
         break
       }
       default: {
@@ -126,30 +165,12 @@ const programWithOutputs = (instructions, inputs = []) => {
     p.step()
   }
 
-  return [p.tape, p.outputs]
+  return p
 }
 
-const program = instructions => {
-  let [tape, _] = programWithOutputs(instructions)
-  return tape
-}
+const program = instructions => programWithOutputs(instructions).tape
 
 module.exports = { program, programWithOutputs, Program }
-
-const programValues = (tape, index, modes = []) => [
-  readTape(tape, index + 1, modes[0]),
-  readTape(tape, index + 2, modes[1]),
-  tape[index + 3]
-]
-
-const readTape = (tape, index, mode = 0) => {
-  switch (mode) {
-    case 0:
-      return tape[tape[index]]
-    case 1:
-      return tape[index]
-  }
-}
 
 assert.deepEqual(program([1, 0, 0, 0, 99]), [2, 0, 0, 0, 99])
 assert.deepEqual(program([2, 3, 0, 3, 99]), [2, 3, 0, 6, 99])

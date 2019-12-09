@@ -5,9 +5,10 @@ const { sum } = require('lodash')
 const { programWithOutputs } = require('./02.js')
 
 const parse = input => input.split(',').map(v => parseInt(v))
-const run = (instructions, inputs) =>
-  programWithOutputs(parse(instructions), inputs)
-
+const run = (instructions, inputs) => {
+  const { tape, outputs } = programWithOutputs(parse(instructions), inputs)
+  return [tape, outputs]
+}
 {
   const outputsInputs = '3,0,4,0,99'
   for (let i = 0; i < 100; i++) {
@@ -50,5 +51,29 @@ assert.equal(part1('3,12,6,12,15,1,13,14,13,4,13,99,-1,0,1,9', [0]), 0)
 //   immediate
 assert.equal(part1('3,3,1105,-1,9,1101,0,0,12,4,12,99,1', [2]), 1)
 assert.equal(part1('3,3,1105,-1,9,1101,0,0,12,4,12,99,1', [0]), 0)
+
+assert.equal(
+  part1(
+    '3,21,1008,21,8,20,1005,20,22,107,8,21,20,1006,20,31,1106,0,36,98,0,0,1002,21,125,20,4,20,1105,1,46,104,999,1105,1,46,1101,1000,1,20,4,20,1105,1,46,98,99',
+    [6]
+  ),
+  999
+)
+
+assert.equal(
+  part1(
+    '3,21,1008,21,8,20,1005,20,22,107,8,21,20,1006,20,31,1106,0,36,98,0,0,1002,21,125,20,4,20,1105,1,46,104,999,1105,1,46,1101,1000,1,20,4,20,1105,1,46,98,99',
+    [8]
+  ),
+  1000
+)
+
+assert.equal(
+  part1(
+    '3,21,1008,21,8,20,1005,20,22,107,8,21,20,1006,20,31,1106,0,36,98,0,0,1002,21,125,20,4,20,1105,1,46,104,999,1105,1,46,1101,1000,1,20,4,20,1105,1,46,98,99',
+    [100]
+  ),
+  1001
+)
 
 console.log(part1(input, [5]))
