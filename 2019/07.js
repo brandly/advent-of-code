@@ -55,6 +55,31 @@ assert.equal(
 
 console.log(part1(operations))
 
+const feedbackLoop = amps => {
+  let i = 0
+  while (!amps[amps.length - 1].halted()) {
+    const advance = () => {
+      // consume the output and send it to the next amp
+      let outputs = amps[i].outputs
+      amps[i].outputs = []
+      i = (i + 1) % amps.length
+      amps[i].send(outputs)
+    }
+    try {
+      if (amps[i].halted()) {
+        advance()
+      }
+      while (!amps[i].halted()) {
+        amps[i].step()
+      }
+    } catch (e) {
+      advance()
+    }
+  }
+
+  return amps[amps.length - 1].getLastOutput()
+}
+
 const part2 = operations => {
   const thrusterSignals = permutation(range(5, 10)).map(settings => {
     const amps = settings.map((phaseSetting, index) => {
@@ -62,28 +87,7 @@ const part2 = operations => {
       return new Program(operations, inputs)
     })
 
-    let i = 0
-    while (!amps[amps.length - 1].halted()) {
-      const advance = () => {
-        // consume the output and send it to the next amp
-        let outputs = amps[i].outputs
-        amps[i].outputs = []
-        i = (i + 1) % amps.length
-        amps[i].send(outputs)
-      }
-      try {
-        if (amps[i].halted()) {
-          advance()
-        }
-        while (!amps[i].halted()) {
-          amps[i].step()
-        }
-      } catch (e) {
-        advance()
-      }
-    }
-
-    return amps[amps.length - 1].getLastOutput()
+    return feedbackLoop(amps)
   })
   return max(thrusterSignals)
 }
