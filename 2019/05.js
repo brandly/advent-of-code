@@ -35,7 +35,6 @@ assert.equal(part1('3,9,8,9,10,9,4,9,99,-1,8', [12]), 0)
 assert.equal(part1('3,3,1108,-1,8,3,4,3,99', [8]), 1)
 assert.equal(part1('3,3,1108,-1,8,3,4,3,99', [12]), 0)
 
-
 // less than 8
 //   position
 assert.equal(part1('3,9,7,9,10,9,4,9,99,-1,8', [2]), 1)
@@ -43,7 +42,6 @@ assert.equal(part1('3,9,7,9,10,9,4,9,99,-1,8', [12]), 0)
 //   immediate
 assert.equal(part1('3,3,1107,-1,8,3,4,3,99', [2]), 1)
 assert.equal(part1('3,3,1107,-1,8,3,4,3,99', [12]), 0)
-
 
 // non-zero
 //   position
