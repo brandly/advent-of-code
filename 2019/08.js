@@ -46,20 +46,19 @@ const part1 = nums => {
 
 console.log(part1(nums))
 
-const pixels = layers => {
-  const top = layers[0]
+const pixels = layers =>
+  layers[0].map((row, y) => row.map((_, x) => layers.map(layer => layer[y][x])))
 
-  return top.map((row, y) =>
-    row.map((_, x) => layers.map(layer => layer[y][x]))
-  )
-}
+const view = image =>
+  image.map(row => row.map(v => (v === 0 ? ' ' : '■')).join('')).join('\n')
+
+const transparent = 2
+const flatten = image =>
+  pixels(image).map(row => row.map(p => p.find(v => v !== transparent)))
 
 const part2 = (nums, width, height) => {
   const image = parseImage(parse(nums), width, height)
-  const thru = pixels(image).map(row => row.map(p => p.find(v => v !== 2)))
-  return thru
-    .map(row => row.map(v => (v === 0 ? ' ' : '■')).join(''))
-    .join('\n')
+  return view(flatten(image))
 }
 
 console.log(part2(nums, width, height))
