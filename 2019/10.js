@@ -155,20 +155,18 @@ class Asteroid {
   destroy() {
     let { _prev, _next } = this
     if (this === _prev && this === _next) return null
+
     _prev._next = _next
     _next._prev = _prev
 
     if (_next.slope === this.slope) {
-      let n = _next
+      let n = _next.next()
       // loop thru
-      while (n !== _prev) {
+      while (n !== _next) {
         if (n.slope !== this.slope) break
         n = n.next()
       }
-      // see if we found a new target
-      if (n.slope !== this.slope) {
-        _next = n
-      }
+      _next = n
     }
 
     return _next
@@ -200,11 +198,7 @@ const part2 = (input, monitor) => {
 // lots of examples, so you gotta specify which to run
 let chosenOne = process.argv[2]
 if (chosenOne === '0') {
-  const example = `.#..#
-.....
-#####
-....#
-...##`
+  const example = '.#..#\n.....\n#####\n....#\n...##'
 
   const board = parse(example)
   assert.equal(example, view(board, val => (val ? '#' : '.')))
@@ -228,76 +222,50 @@ if (chosenOne === '0') {
   assert.equal(canSee(board, [4, 0], [4, 4]), false)
   assert.equal(canSee(board, [4, 4], [4, 0]), false)
   assert.equal(canSee(board, [4, 4], [4, 2]), false)
-  const viewedCounts = `.7..7
-.....
-67775
-....7
-...87`
+  const viewedCounts = '.7..7\n.....\n67775\n....7\n...87'
   assert.equal(viewCounts(example), viewedCounts)
   assert.deepEqual(part1(example), [8, [3, 4]])
 } else if (chosenOne === '1') {
-  const example = `......#.#.
-#..#.#....
-..#######.
-.#.#.###..
-.#..#.....
-..#....#.#
-#..#....#.
-.##.#..###
-##...#..#.
-.#....####`
+  const example =
+    '......#.#.\n#..#.#....\n..#######.\n.#.#.###..\n.#..#.....\n..#....#.#\n#..#....#.\n.##.#..###\n##...#..#.\n.#....####'
   console.log(viewCounts(example, 1))
   const board = parse(example)
   assert.equal(canSee(board, [1, 8], [8, 8]), false)
   assert.equal(canSee(board, [1, 8], [3, 6]), false)
   assert.deepEqual(part1(example), [33, [5, 8]])
 } else if (chosenOne === '2') {
-  const example = `#.#...#.#.
-.###....#.
-.#....#...
-##.#.#.#.#
-....#.#.#.
-.##..###.#
-..#...##..
-..##....##
-......#...
-.####.###.`
+  const example =
+    '#.#...#.#.\n.###....#.\n.#....#...\n##.#.#.#.#\n....#.#.#.\n.##..###.#\n..#...##..\n..##....##\n......#...\n.####.###.'
   console.log(viewCounts(example, 1))
   assert.deepEqual(part1(example), [35, [1, 2]])
 } else if (chosenOne === '3') {
-  const example = `.#..#..###
-####.###.#
-....###.#.
-..###.##.#
-##.##.#.#.
-....###..#
-..#.#..#.#
-#..#.#.###
-.##...##.#
-.....#.#..`
+  const example =
+    '.#..#..###\n####.###.#\n....###.#.\n..###.##.#\n##.##.#.#.\n....###..#\n..#.#..#.#\n#..#.#.###\n.##...##.#\n.....#.#..'
   console.log(viewCounts(example, 1))
   assert.deepEqual(part1(example), [41, [6, 3]])
 } else if (chosenOne === '4') {
-  const example = `.#..##.###...#######
-##.############..##.
-.#.######.########.#
-.###.#######.####.#.
-#####.##.#.##.###.##
-..#####..#.#########
-####################
-#.####....###.#.#.##
-##.#################
-#####.##.###..####..
-..######..##.#######
-####.##.####...##..#
-.#####..#.######.###
-##...#.##########...
-#.##########.#######
-.####.#.###.###.#.##
-....##.##.###..#####
-.#.#.###########.###
-#.#.#.#####.####.###
-###.##.####.##.#..##`
+  const example = [
+    '.#..##.###...#######',
+    '##.############..##.',
+    '.#.######.########.#',
+    '.###.#######.####.#.',
+    '#####.##.#.##.###.##',
+    '..#####..#.#########',
+    '####################',
+    '#.####....###.#.#.##',
+    '##.#################',
+    '#####.##.###..####..',
+    '..######..##.#######',
+    '####.##.####...##..#',
+    '.#####..#.######.###',
+    '##...#.##########...',
+    '#.##########.#######',
+    '.####.#.###.###.#.##',
+    '....##.##.###..#####',
+    '.#.#.###########.###',
+    '#.#.#.#####.####.###',
+    '###.##.####.##.#..##'
+  ].join('\n')
   console.log(viewCounts(example, 1))
   assert.deepEqual(part1(example), [210, [11, 13]])
   const knownTargets = {
@@ -318,13 +286,9 @@ if (chosenOne === '0') {
     assert.deepEqual(actualTargets[oneIndex - 1], coord)
   })
 } else if (chosenOne === '5') {
-  const example = `.#....#####...#..
-##...##.#####..##
-##...#...#.#####.
-..#.....X...###..
-..#.#.....#....##`
+  const example =
+    '.#....#####...#..\n##...##.#####..##\n##...#...#.#####.\n..#.....X...###..\n..#.#.....#....##'
   console.log(viewCounts(example, 1))
-  // order
   const expected = [
     [8, 1],
     [9, 0],
