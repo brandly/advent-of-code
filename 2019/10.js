@@ -120,48 +120,84 @@ const getOrderedTargets = (board, monitor) => {
     ]
   )
 
-  return above
-    .concat(onRight, below, onLeft)
-    .map(([slope, coords]) => ({ slope, coords }))
+  const targets = above.concat(onRight, below, onLeft)
+
+  const first = new Asteroid({
+    slope: targets[0][0],
+    coords: targets[0][1]
+  }).loop()
+
+  let current = first
+  targets.slice(1).forEach(([slope, coords]) => {
+    current = current.insert({ slope, coords })
+  })
+
+  return first
+}
+
+class Asteroid {
+  constructor({ slope, coords }) {
+    this.slope = slope
+    this.coords = coords
+    this._next = null
+    this._prev = null
+  }
+
+  loop() {
+    this._next = this
+    this._prev = this
+    return this
+  }
+
+  next() {
+    return this._next
+  }
+  prev() {
+    return this._prev
+  }
+
+  remove() {
+    const { _prev, _next } = this
+    if (this === _prev && this === _next) return null
+    _prev._next = _next
+    _next._prev = _prev
+    return _next
+  }
+
+  insert(init) {
+    let asteroid = new Asteroid(init)
+    asteroid._next = this._next
+    asteroid._prev = this
+
+    this._next = asteroid
+    asteroid._next._prev = asteroid
+
+    return asteroid
+  }
 }
 
 const part2 = (input, monitor) => {
   const board = parse(input)
-  const targets = getOrderedTargets(board, monitor)
-
-  const encode = ([x, y]) => `${x},${y}`
-  const record = {}
-
-  const hasSeen = coords => record[encode(coords)] || false
-  const recordSighting = coords => {
-    record[encode(coords)] = true
-  }
-
+  const hits = []
   let lastSlope = null
   let startOfLoop = null
-  const hits = []
-  for (
-    let i = 0;
-    targets.filter(o => !hasSeen(o.coords)).length > 0;
-    i = (i + 1) % targets.length
-  ) {
-    let target = targets[i]
+  let target = getOrderedTargets(board, monitor)
+  while (target) {
     if (target.slope === lastSlope) {
       if (startOfLoop === null) {
-        startOfLoop = i
-      } else if (startOfLoop === i) {
+        startOfLoop = target
+      } else if (startOfLoop === target) {
         lastSlope = null
       }
-    } else if (
-      target.slope !== lastSlope &&
-      !hasSeen(target.coords) &&
-      canSee(board, monitor, target.coords)
-    ) {
+      target = target.next()
+    } else if (canSee(board, monitor, target.coords)) {
       hits.push(target.coords)
-      recordSighting(target.coords)
       destroyAsteroid(board, target.coords)
       lastSlope = target.slope
       startOfLoop = null
+      target = target.remove()
+    } else {
+      target = target.next()
     }
   }
   return hits
