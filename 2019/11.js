@@ -115,7 +115,7 @@ const view = panels => {
     .map(y => range(minX, maxX + 1).map(x => panels[encode([x, y])] || 0))
 
   return toDraw
-    .map(row => row.map(v => (v === 1 ? '#' : ' ')).join(''))
+    .map(row => row.map(v => (v === 1 ? '■' : ' ')).join(''))
     .join('\n')
 }
 
