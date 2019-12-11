@@ -1,6 +1,6 @@
 const fs = require('fs')
 const assert = require('assert')
-const { range, flatten, every, maxBy } = require('lodash')
+const { range, flatten, every, maxBy, sortBy } = require('lodash')
 
 const parse = input =>
   input
@@ -74,6 +74,87 @@ const getCounts = input => {
 const part1 = input => {
   const counts = getCounts(input)
   return maxBy(toList(counts), ([count, _]) => count)
+}
+
+const destroyAsteroid = (board, [x, y]) => {
+  board[y][x] = false
+}
+
+const part2 = (input, monitor) => {
+  const board = parse(input)
+
+  const asteroids = getAsteroids(board).filter(
+    ([x, y]) => !(x === monitor[0] && y === monitor[1])
+  )
+
+  const slopeToAsteroid = asteroids.map(coords => [
+    getSlope(monitor, coords),
+    coords
+  ])
+
+  const above = sortBy(
+    slopeToAsteroid.filter(([slope, _]) => slope === Infinity),
+    ([_, coords]) => coords[1]
+  ).reverse()
+
+  const onRight = sortBy(
+    slopeToAsteroid.filter(
+      ([slope, coords]) => isFinite(slope) && coords[0] > monitor[0]
+    ),
+    [
+      ([slope, coords]) => slope,
+      ([slope, coords]) => lineOfSight(monitor, coords).length
+    ]
+  )
+
+  const below = sortBy(
+    slopeToAsteroid.filter(([slope, _]) => slope === -Infinity),
+    ([_, coords]) => coords[1]
+  )
+
+  const onLeft = sortBy(
+    slopeToAsteroid.filter(
+      ([slope, coords]) => isFinite(slope) && coords[0] < monitor[0]
+    ),
+    [
+      ([slope, coords]) => slope,
+      ([slope, coords]) => lineOfSight(monitor, coords).length
+    ]
+  )
+
+  let targets = above
+    .concat(onRight, below, onLeft)
+    .map(([slope, coords]) => ({ slope, coords }))
+
+  const encode = ([x, y]) => `${x},${y}`
+
+  const record = {}
+  const hasSeen = coords => record[encode(coords)] || false
+  const recordSighting = coords => {
+    record[encode(coords)] = true
+  }
+
+  let lastSlope = null
+  const hits = []
+  for (
+    let i = 0;
+    targets.filter(o => !hasSeen(o.coords)).length;
+    i = (i + 1) % targets.length
+  ) {
+    let target = targets[i]
+    if (
+      target.slope !== lastSlope &&
+      !hasSeen(target.coords) &&
+      canSee(board, monitor, target.coords)
+    ) {
+      hits.push(target.coords)
+      recordSighting(target.coords)
+      destroyAsteroid(board, target.coords)
+      lastSlope = target.slope
+    }
+  }
+
+  return hits //[hits.length - 1]
 }
 
 // lots of examples, so you gotta specify which to run
@@ -179,6 +260,80 @@ if (chosenOne === '0') {
 ###.##.####.##.#..##`
   console.log(viewCounts(example, 1))
   assert.deepEqual(part1(example), [210, [11, 13]])
+  //   . 191   .   . 188 193   . 191 195 185   .   .   . 189 194 190 194 196 191 187
+  // 198 194   . 197 192 200 196 197 200 199 190 201 199 193 200   .   . 198 198   .
+  //   . 190   . 189 192 196 197 196 195   . 192 199 193 194 195 192 197 195   . 191
+  //   . 197 198 196   . 194 198 196 199 200 192 198   . 195 200 198 192   . 194   .
+  // 197 187 195 188 194   . 197 190   . 191   . 197 194   . 195 188 195   . 195 188
+  //   .   . 203 199 191 205 201   .   . 199   . 203 199 201 203 199 198 200 197 192
+  // 194 190 199 192 193 193 196 194 199 197 193 199 197 193 200 190 195 195 195 191
+  // 203   . 203 197 197 205   .   .   .   . 199 203 202   . 201   . 196   . 196 193
+  // 197 192   . 192 194 195 200 196 202 196 197 196 198 194 199 193 195 196 191 195
+  // 199 193 205 198 188   . 197 196   . 198 192 197   .   . 200 195 197 192   .   .
+  //   .   . 201 186 190 202 196 196   .   . 195 199   . 188 194 194 195 198 194 188
+  // 199 200 198 201   . 202 198   . 200 199 199 203   .   .   . 193 195   .   . 192
+  //   . 191 198 191 191 193   .   . 198   . 193 195 193 193 196 194   . 198 192 191
+  // 201 196   .   .   . 204   . 201 208 198 202(210)203 203 203 195 202   .   .   .
+  // 197   . 200 196 196 197 198 194 203 192 197 195   . 196 194 194 196 196 196 194
+  //   . 197 202 198 193   . 195   . 200 198 196   . 197 195 195   . 196   . 194 188
+  //   .   .   .   . 194 195   . 191 197   . 192 194 195   .   . 188 189 197 194 194
+  //   . 198   . 202   . 208 197 200 202 200 203 205 198 201 201 199   . 200 193 197
+  // 196   . 201   . 190   . 195 192 199 192 189   . 197 187 196 188   . 196 193 190
+  // 202 200 203   . 197 201   . 200 200 193 197   . 199 201   . 197   .   . 200 190
+  part2(example, [11, 13]).forEach((coord, i) => console.log(i + 1, coord))
+} else if (chosenOne === '5') {
+  const example = `.#....#####...#..
+##...##.#####..##
+##...#...#.#####.
+..#.....X...###..
+..#.#.....#....##`
+  console.log(viewCounts(example, 1))
+  // order
+  const expected = [
+    [8, 1],
+    [9, 0],
+    [9, 1],
+    [10, 0],
+    [9, 2],
+    [11, 1],
+    [12, 1],
+    [11, 2],
+    [15, 1],
+    // --
+    [12, 2],
+    [13, 2],
+    [14, 2],
+    [15, 2],
+    [12, 3],
+    [16, 4],
+    [15, 4],
+    [10, 4],
+    [4, 4],
+    // --
+    [2, 4],
+    [2, 3],
+    [0, 2],
+    [1, 2],
+    [0, 1],
+    [1, 1],
+    [5, 2],
+    [1, 0],
+    [5, 1],
+    // --
+    [6, 1],
+    [6, 0],
+    [7, 0],
+    [8, 0],
+    [10, 1],
+    [14, 0],
+    [16, 1],
+    [13, 3],
+    [14, 3]
+  ]
+
+  part2(example, [8, 3]).forEach((coords, i) => {
+    assert.deepEqual(coords, expected[i])
+  })
 }
 
 const input = fs
@@ -186,4 +341,7 @@ const input = fs
   .toString()
   .trim()
 
-console.log(part1(input))
+console.log(part1(input)[0])
+
+const p2 = part2(input, [13, 17])[199]
+console.log(p2[0] * 100 + p2[1])
