@@ -22,6 +22,12 @@ class Program {
     this.inputs = this.inputs.concat(inputs)
   }
 
+  consumeOutputs() {
+    const { outputs } = this
+    this.outputs = []
+    return outputs
+  }
+
   nextInput() {
     const next_ = this.inputs[this.inputIndex]
 
