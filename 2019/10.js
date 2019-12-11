@@ -76,10 +76,6 @@ const part1 = input => {
   return maxBy(toList(counts), ([count, _]) => count)
 }
 
-const destroyAsteroid = (board, [x, y]) => {
-  board[y][x] = false
-}
-
 const getOrderedTargets = (board, monitor) => {
   const asteroids = getAsteroids(board).filter(
     ([x, y]) => !(x === monitor[0] && y === monitor[1])
@@ -100,8 +96,8 @@ const getOrderedTargets = (board, monitor) => {
       ([slope, coords]) => isFinite(slope) && coords[0] > monitor[0]
     ),
     [
-      ([slope, coords]) => slope,
-      ([slope, coords]) => lineOfSight(monitor, coords).length
+      ([slope, _]) => slope,
+      ([_, coords]) => lineOfSight(monitor, coords).length
     ]
   )
 
@@ -115,8 +111,8 @@ const getOrderedTargets = (board, monitor) => {
       ([slope, coords]) => isFinite(slope) && coords[0] < monitor[0]
     ),
     [
-      ([slope, coords]) => slope,
-      ([slope, coords]) => lineOfSight(monitor, coords).length
+      ([slope, _]) => slope,
+      ([_, coords]) => lineOfSight(monitor, coords).length
     ]
   )
 
@@ -156,11 +152,25 @@ class Asteroid {
     return this._prev
   }
 
-  remove() {
-    const { _prev, _next } = this
+  destroy() {
+    let { _prev, _next } = this
     if (this === _prev && this === _next) return null
     _prev._next = _next
     _next._prev = _prev
+
+    if (_next.slope === this.slope) {
+      let n = _next
+      // loop thru
+      while (n !== _prev) {
+        if (n.slope !== this.slope) break
+        n = n.next()
+      }
+      // see if we found a new target
+      if (n.slope !== this.slope) {
+        _next = n
+      }
+    }
+
     return _next
   }
 
@@ -179,26 +189,10 @@ class Asteroid {
 const part2 = (input, monitor) => {
   const board = parse(input)
   const hits = []
-  let lastSlope = null
-  let startOfLoop = null
   let target = getOrderedTargets(board, monitor)
   while (target) {
-    if (target.slope === lastSlope) {
-      if (startOfLoop === null) {
-        startOfLoop = target
-      } else if (startOfLoop === target) {
-        lastSlope = null
-      }
-      target = target.next()
-    } else if (canSee(board, monitor, target.coords)) {
-      hits.push(target.coords)
-      destroyAsteroid(board, target.coords)
-      lastSlope = target.slope
-      startOfLoop = null
-      target = target.remove()
-    } else {
-      target = target.next()
-    }
+    hits.push(target.coords)
+    target = target.destroy()
   }
   return hits
 }
