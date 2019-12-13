@@ -18,8 +18,7 @@ const parse = input =>
 const viewXYZ = ({ x, y, z }) => `<x=${x}, y=${y}, z=${z}>`
 const viewSimple = positions => positions.map(pos => viewXYZ(pos)).join('\n')
 
-const sumAbsoluteValues = coords =>
-  sum(Object.keys(coords).map(axis => Math.abs(coords[axis])))
+const sumAbsoluteValues = c => Math.abs(c.x) + Math.abs(c.y) + Math.abs(c.z)
 
 class Moon {
   constructor(position) {
@@ -108,8 +107,8 @@ class SolarSystem {
   assert.equal(system.totalEnergy(), 1940)
 }
 
+const input = fs.readFileSync(`${__dirname}/12.txt`, 'utf-8').trim()
 {
-  const input = fs.readFileSync(`${__dirname}/12.txt`, 'utf-8').trim()
   const system = new SolarSystem(parse(input))
 
   for (let i = 0; i < 1000; i++) {
@@ -127,17 +126,58 @@ const view = sys =>
     ''
   ].join('\n')
 
+const lcm = (a, b) => (a / gcd(a, b)) * b
+// euclid
+const gcd = (a, b) => {
+  while (a != b) {
+    if (a > b) {
+      a = a - b
+    } else {
+      b = b - a
+    }
+  }
+  return a
+}
+
 const findDuplicateState = input => {
   const system = new SolarSystem(parse(input))
-  const seen = {}
-  for (let i = 0; ; i++) {
+  const seenx = {}
+  const seeny = {}
+  const seenz = {}
+  let repeatx = null
+  let repeaty = null
+  let repeatz = null
+  const getKey = (system, axis) =>
+    system.moons
+      .flatMap(moon => [moon.position[axis], moon.velocity[axis]])
+      .join(',')
+  for (let i = 0; !repeatx || !repeaty || !repeatz; i++) {
     system.step()
-    let key = view(system)
-    if (seen[key]) {
-      return i
+
+    if (!repeatx) {
+      let key = getKey(system, 'x')
+      if (key in seenx) {
+        repeatx = i
+      }
+      seenx[key] = true
     }
-    seen[key] = true
+    if (!repeaty) {
+      let key = getKey(system, 'y')
+      if (key in seeny) {
+        repeaty = i
+      }
+      seeny[key] = true
+    }
+    if (!repeatz) {
+      let key = getKey(system, 'z')
+      if (key in seenz) {
+        repeatz = i
+      }
+      seenz[key] = true
+    }
   }
+
+  return lcm(lcm(repeatx, repeaty), repeatz)
 }
 
 {
@@ -146,9 +186,12 @@ const findDuplicateState = input => {
   assert.equal(findDuplicateState(example), 2772)
 }
 
-// TODO: find a more efficient way to simulate the universe :(
 {
   const example =
     '<x=-8, y=-10, z=0>\n<x=5, y=5, z=10>\n<x=2, y=-7, z=3>\n<x=9, y=-8, z=-3>'
   assert.equal(findDuplicateState(example), 4686774924)
+}
+
+{
+  console.log(findDuplicateState(input))
 }
