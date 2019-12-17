@@ -18,6 +18,15 @@ class Program {
     this.relativeBase = 0
   }
 
+  clone() {
+    const p = new Program(this.tape, this.inputs)
+    p.index = this.index
+    p.outputs = this.outputs.slice(0)
+    p.inputIndex = this.inputIndex
+    p.relativeBase = this.relativeBase
+    return p
+  }
+
   send(inputs) {
     this.inputs = this.inputs.concat(inputs)
   }
