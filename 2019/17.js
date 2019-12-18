@@ -53,14 +53,9 @@ const sumAlignmentParams = view =>
   assert.equal(sumAlignmentParams(example), 76)
 }
 
-const part1 = input => {
-  const p = new Program(parse(input))
-  while (!p.halted()) {
-    p.step()
-  }
-
-  const cameraView = p
-    .consumeOutputs()
+const show = view => view.map(line => line.join('')).join('\n')
+const parseCameraView = outputs =>
+  outputs
     .map(num => {
       if (num === 10) return '\n'
       return String.fromCharCode(num)
@@ -70,7 +65,43 @@ const part1 = input => {
     .split('\n')
     .map(line => line.split(''))
 
+const part1 = input => {
+  const p = new Program(parse(input))
+  while (!p.halted()) {
+    p.step()
+  }
+  const cameraView = parseCameraView(p.consumeOutputs())
+  // console.log(show(cameraView))
   return sumAlignmentParams(cameraView)
 }
 
 console.log(part1(input))
+
+const toAscii = str =>
+  str
+    .split('')
+    .map(c => c.charCodeAt(0))
+    .concat(10)
+
+assert.deepEqual(toAscii('A,B,C'), [65, 44, 66, 44, 67, 10])
+
+const part2 = input => {
+  const p = new Program(parse(input))
+
+  // Force the vacuum robot to wake up
+  p.tape[0] = 2
+
+  // looked at `show(cameraView)` and did this by hand :shrug:
+  p.send(toAscii('A,B,A,B,C,C,B,C,B,A'))
+  p.send(toAscii('R,12,L,8,R,12'))
+  p.send(toAscii('R,8,R,6,R,6,R,8'))
+  p.send(toAscii('R,8,L,8,R,8,R,4,R,4'))
+  p.send(toAscii('n'))
+
+  while (!p.halted()) {
+    p.step()
+  }
+  return p.outputs[p.outputs.length - 1]
+}
+
+console.log(part2(input))
