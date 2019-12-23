@@ -12,50 +12,28 @@ const phase = nums =>
       const sum = nums.slice(i, i + i + 1).reduce((a, b) => a + b, 0)
       return Math.abs(sum) % 10
     } else {
-      const pattern = forIndex(i, nums.length)
       let sum = 0
       for (let j = i; j < nums.length; j++) {
-        sum += nums[j] * pattern[j]
+        const repeaterLen = 4 * (i + 1)
+        const repeaterIndex = (j + 1) % repeaterLen
+        const baseIndex = repeaterIndex / (i + 1)
+        if (baseIndex < 1) {
+          // 0
+          continue
+        } else if (baseIndex < 2) {
+          // 1
+          sum += nums[j]
+        } else if (baseIndex < 3) {
+          // 0
+          continue
+        } else {
+          // -1
+          sum -= nums[j]
+        }
       }
       return Math.abs(sum) % 10
     }
   })
-
-const memoize = fn => {
-  const brain = {}
-  const encode = (a, b) => `${a},${b}`
-
-  return (a, b) => {
-    const key = encode(a, b)
-    if (key in brain) {
-      return brain[key]
-    }
-    const result = fn(a, b)
-    brain[key] = result
-    return result
-  }
-}
-
-const basePattern = [0, 1, 0, -1]
-const forIndex = memoize((index, len) => {
-  let base = repeat(basePattern, index + 1)
-  let output = []
-  for (let i = 1; output.length < len; i = (i + 1) % base.length) {
-    output.push(base[i])
-  }
-  return output
-})
-
-const repeat = (list, times) =>
-  list.flatMap(n => {
-    let out = []
-    for (let i = 0; i < times; i++) {
-      out.push(n)
-    }
-    return out
-  })
-
-assert.deepEqual(repeat([1, 2, 3], 2), [1, 1, 2, 2, 3, 3])
 
 {
   const example = '12345678'
