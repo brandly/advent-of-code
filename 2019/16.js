@@ -66,3 +66,26 @@ assert.deepEqual(part1('69317163492948606335995924319873'), '52432133')
 
 const input = fs.readFileSync(`${__dirname}/16.txt`, 'utf-8').trim()
 console.log(part1(input))
+
+const part2 = input => {
+  const offset = parseInt(input.slice(0, 7))
+  input = range(0, 10000)
+    .map(() => input)
+    .join('')
+  input = input.slice(offset)
+  let signal = parse(input)
+  // numbers are only dependent on themselves and every number after them.
+  // the offset is large enough that the pattern is just a bunch of 1s.
+  // each number is the sum of itself and the numbers after it.
+  for (let phase = 0; phase < 100; phase++) {
+    const sums = []
+    sums[signal.length - 1] = signal[signal.length - 1]
+    for (let i = signal.length - 2; i >= 0; i--) {
+      sums[i] = sums[i + 1] + signal[i]
+    }
+    signal = signal.map((_, i) => Math.abs(sums[i]) % 10)
+  }
+  return signal.join('').slice(0, 8)
+}
+
+console.log(part2(input))
