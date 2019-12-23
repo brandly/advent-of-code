@@ -1,27 +1,50 @@
 const assert = require('assert')
 const fs = require('fs')
-const { zip } = require('lodash')
+const { zip, range } = require('lodash')
 
 const parse = input => input.split('').map(v => parseInt(v))
 
-const basePattern = [0, 1, 0, -1]
 const phase = nums =>
   // output is same length as input
   nums.map((_, i) => {
-    const pattern = forIndex(basePattern, i, nums.length)
-    const sum = zip(nums, pattern)
-      .map(([n, p]) => n * p)
-      .reduce((a, b) => a + b, 0)
-    return Math.abs(sum) % 10
+    // just 1s after this point, add up the nums
+    if (i + (i + 1) * 2 >= nums.length) {
+      const sum = nums.slice(i, i + i + 1).reduce((a, b) => a + b, 0)
+      return Math.abs(sum) % 10
+    } else {
+      const pattern = forIndex(i, nums.length)
+      let sum = 0
+      for (let j = i; j < nums.length; j++) {
+        sum += nums[j] * pattern[j]
+      }
+      return Math.abs(sum) % 10
+    }
   })
 
-const forIndex = (pattern, index, len) => {
-  let output = repeat(pattern, index + 1).slice(1)
-  while (output.length < len) {
-    output = output.concat(repeat(pattern, index + 1))
+const memoize = fn => {
+  const brain = {}
+  const encode = (a, b) => `${a},${b}`
+
+  return (a, b) => {
+    const key = encode(a, b)
+    if (key in brain) {
+      return brain[key]
+    }
+    const result = fn(a, b)
+    brain[key] = result
+    return result
   }
-  return output.slice(0, len)
 }
+
+const basePattern = [0, 1, 0, -1]
+const forIndex = memoize((index, len) => {
+  let base = repeat(basePattern, index + 1)
+  let output = []
+  for (let i = 1; output.length < len; i = (i + 1) % base.length) {
+    output.push(base[i])
+  }
+  return output
+})
 
 const repeat = (list, times) =>
   list.flatMap(n => {
@@ -33,11 +56,7 @@ const repeat = (list, times) =>
   })
 
 assert.deepEqual(repeat([1, 2, 3], 2), [1, 1, 2, 2, 3, 3])
-assert.deepEqual(forIndex([1, 2, 3, 4], 0, 4), [2, 3, 4, 1])
-assert.deepEqual(forIndex([1, 2, 3, 4], 0, 8), [2, 3, 4, 1, 2, 3, 4, 1])
-assert.deepEqual(forIndex([1, 2, 3, 4], 0, 6), [2, 3, 4, 1, 2, 3])
-assert.deepEqual(forIndex([0, 1, 2, 3], 1, 8), [0, 1, 1, 2, 2, 3, 3, 0])
-assert.deepEqual(forIndex([0, 1, 2, 3], 2, 6), [0, 0, 1, 1, 1, 2])
+
 {
   const example = '12345678'
   let signal = parse(example)
