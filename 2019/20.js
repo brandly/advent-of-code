@@ -232,3 +232,172 @@ YN......#               VT..#....QG
 }
 
 console.log(part1(input))
+
+const getEdges = maze => {
+  let top, bottom
+  for (let y = 0; y < maze.length; y++) {
+    let row = maze[y]
+    if (!top && row.includes('#')) {
+      top = y
+    }
+    if (top && !row.includes('#')) {
+      bottom = y - 1
+      break
+    }
+  }
+
+  let topRow = maze[top]
+  let left, right
+  for (let x = 0; x < topRow.length; x++) {
+    if (!left && topRow[x] === '#') {
+      left = x
+    }
+
+    right = x
+    if (left && topRow[x] === ' ') {
+      right = x - 1
+      break
+    }
+  }
+
+  return { top, bottom, left, right }
+}
+
+const cloneMaze = maze => maze.map(row => row.map(a => a))
+
+class RecursiveDonut {
+  static fromMaze(maze) {
+    return new RecursiveDonut(maze, getPortals(maze), getEdges(maze))
+  }
+
+  constructor(maze, portals, edges) {
+    this.pristineMaze = cloneMaze(maze)
+    this.portals = portals
+    this.edges = edges
+    this.mazeForLevel = { '0': maze }
+  }
+
+  isOuter(c) {
+    return (
+      c.x === this.edges.left ||
+      c.x === this.edges.right ||
+      c.y === this.edges.top ||
+      c.y === this.edges.bottom
+    )
+  }
+
+  getMaze(level) {
+    if (!(level in this.mazeForLevel)) {
+      this.mazeForLevel[level] = cloneMaze(this.pristineMaze)
+    }
+    return this.mazeForLevel[level]
+  }
+
+  getAvailable(position) {
+    return getNeighbors(this.getMaze(position.level), position.coords)
+      .map(([cell, coords]) => {
+        if (cell === '#') {
+          return null
+        }
+
+        if (isPortal(cell)) {
+          const destCoords = this.portals[encode(position.coords)]
+          if (!destCoords) return null
+
+          const isOuter = this.isOuter(position.coords)
+
+          if (isOuter && position.level === 0) return null
+          const newLevel = isOuter ? position.level - 1 : position.level + 1
+
+          const destCell = get(this.getMaze(newLevel), destCoords)
+          if (!isOpen(destCell)) return null
+
+          return {
+            steps: position.steps + 1,
+            coords: destCoords,
+            level: newLevel
+          }
+        }
+
+        if (typeof cell === 'number') {
+          return null
+        }
+
+        set(this.getMaze(position.level), coords, position.steps + 1)
+        return { coords, steps: position.steps + 1, level: position.level }
+      })
+      .filter(Boolean)
+  }
+
+  minSteps() {
+    const { start } = this.portals
+    set(this.getMaze(0), start, 0)
+    let positions = [{ steps: 0, coords: start, level: 0 }]
+
+    while (positions.length) {
+      positions = sortBy(positions, p => -p.steps)
+      const next = positions.pop()
+      const available = this.getAvailable(next)
+      for (let i = 0; i < available.length; i++) {
+        const { coords } = available[i]
+        if (isSame(coords, this.portals.goal)) {
+          if (available[i].level === 0) {
+            return available[i].steps
+          } else {
+            continue
+          }
+        }
+        positions.push(available[i])
+      }
+    }
+    throw new Error('Unable to find goal')
+  }
+}
+
+const part2 = input => {
+  const donut = RecursiveDonut.fromMaze(parse(input), 0)
+  return donut.minSteps()
+}
+
+{
+  const example = `             Z L X W       C
+             Z P Q B       K
+  ###########.#.#.#.#######.###############
+  #...#.......#.#.......#.#.......#.#.#...#
+  ###.#.#.#.#.#.#.#.###.#.#.#######.#.#.###
+  #.#...#.#.#...#.#.#...#...#...#.#.......#
+  #.###.#######.###.###.#.###.###.#.#######
+  #...#.......#.#...#...#.............#...#
+  #.#########.#######.#.#######.#######.###
+  #...#.#    F       R I       Z    #.#.#.#
+  #.###.#    D       E C       H    #.#.#.#
+  #.#...#                           #...#.#
+  #.###.#                           #.###.#
+  #.#....OA                       WB..#.#..ZH
+  #.###.#                           #.#.#.#
+CJ......#                           #.....#
+  #######                           #######
+  #.#....CK                         #......IC
+  #.###.#                           #.###.#
+  #.....#                           #...#.#
+  ###.###                           #.#.#.#
+XF....#.#                         RF..#.#.#
+  #####.#                           #######
+  #......CJ                       NM..#...#
+  ###.#.#                           #.###.#
+RE....#.#                           #......RF
+  ###.###        X   X       L      #.#.#.#
+  #.....#        F   Q       P      #.#.#.#
+  ###.###########.###.#######.#########.###
+  #.....#...#.....#.......#...#.....#.#...#
+  #####.#.###.#######.#######.###.###.#.#.#
+  #.......#.......#.#.#.#.#...#...#...#.#.#
+  #####.###.#####.#.#.#.#.###.###.#.###.###
+  #.......#.....#.#...#...............#...#
+  #############.#.#.###.###################
+               A O F   N
+               A A D   M    `
+  assert.equal(part2(example), 396)
+}
+
+console.log(part2(input))
