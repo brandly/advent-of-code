@@ -1,6 +1,6 @@
 const fs = require('fs')
 
-const file = fs.readFileSync('01.txt', 'utf-8')
+const file = fs.readFileSync(`${__dirname}/01.txt`, 'utf-8')
 const numbers = file
   .trim()
   .split('\n')

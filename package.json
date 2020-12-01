@@ -12,6 +12,7 @@
   "devDependencies": {},
   "scripts": {
     "2019": "for f in 2019/*.js; do echo $f; time node $f; echo ''; done",
+    "2020": "for f in 2020/*.js; do echo $f; time node $f; echo ''; done",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "",
