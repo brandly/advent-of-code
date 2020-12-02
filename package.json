@@ -5,6 +5,7 @@
   "description": "",
   "main": "null",
   "dependencies": {
+    "esbuild": "0.8.17",
     "js-combinatorics": "0.5.0",
     "lodash": "4.17.19",
     "md5": "2.0.0"
@@ -12,7 +13,7 @@
   "devDependencies": {},
   "scripts": {
     "2019": "for f in 2019/*.js; do echo $f; time node $f; echo ''; done",
-    "2020": "for f in 2020/*.js; do echo $f; time node $f; echo ''; done",
+    "2020": "for f in 2020/*.js; do echo $f; time (esbuild $f | node); echo ''; done",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "",

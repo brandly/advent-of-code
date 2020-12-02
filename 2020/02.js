@@ -1,7 +1,7 @@
 const fs = require('fs')
 const assert = require('assert')
 
-const file = fs.readFileSync(`${__dirname}/02.txt`, 'utf-8')
+const file = fs.readFileSync('2020/02.txt', 'utf-8')
 
 const parse = (str) => {
   const lines = str.trim().split('\n')
