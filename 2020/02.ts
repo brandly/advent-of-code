@@ -1,10 +1,15 @@
 const fs = require('fs')
 const assert = require('assert')
 
-const file = fs.readFileSync(`${__dirname}/02.txt`, 'utf-8')
+const file = fs.readFileSync('2020/02.txt', 'utf-8')
+
+type Line = {
+  password: string
+  policy: Policy
+}
 
 const parse = (str) => {
-  const lines = str.trim().split('\n')
+  const lines: string[] = str.trim().split('\n')
   return lines.map((line) => {
     const [policy, password] = line.split(': ')
     return {
@@ -14,14 +19,20 @@ const parse = (str) => {
   })
 }
 
-const parsePolicy = (str) => {
+type Policy = {
+  letter: string
+  min: number
+  max: number
+}
+
+const parsePolicy = (str: string): Policy => {
   const [range, letter] = str.split(' ')
   assert(letter.length === 1)
   const [min, max] = range.split('-').map((n) => parseInt(n))
   return { letter, min, max }
 }
 
-const validate = ({ password, policy }) => {
+const validate = ({ password, policy }: Line) => {
   const matches = password
     .split('')
     .filter((letter) => letter === policy.letter)
@@ -35,7 +46,7 @@ const part1 = (str) => {
 
 console.log(part1(file))
 
-const validate2 = ({ password, policy }) => {
+const validate2 = ({ password, policy }: Line) => {
   const positions = [password[policy.min - 1], password[policy.max - 1]]
   return positions.filter((p) => p === policy.letter).length === 1
 }
