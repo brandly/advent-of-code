@@ -2,12 +2,13 @@
 
 > ☃️🎄🎁
 
-here are all the ones i've solved. i've never persevered til the end of the advent. [2017 was a pretty good year tho](https://github.com/brandly/advent-of-code/tree/master/2017).
+here are all the ones i've solved. i've never persevered til the end of the advent.
 
-run all the available 2019 solutions:
+for some years, you can run all of my solutions with a single command:
 
 ```shell
 $ npm run 2019
+$ npm run 2020
 ```
 
 ### related
