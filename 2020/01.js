@@ -15,13 +15,15 @@ const pairs = numbers.flatMap((first) =>
   console.log(match[0] * match[1])
 }
 
-const triplets = numbers.flatMap((first) =>
-  pairs.map(([second, third]) => [first, second, third])
-)
-
 {
-  const match = triplets.find(
-    ([first, second, third]) => first + second + third === 2020
-  )
-  console.log(match[0] * match[1] * match[2])
+  outer: for (let i = 0; i < numbers.length; i++) {
+    for (let j = 0; j < pairs.length; j++) {
+      const first = numbers[i]
+      const [second, third] = pairs[j]
+      if (first + second + third === 2020) {
+        console.log(first * second * third)
+        break outer
+      }
+    }
+  }
 }
