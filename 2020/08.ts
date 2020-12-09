@@ -1,7 +1,6 @@
 const assert = require('assert')
 const fs = require('fs')
 const file = fs.readFileSync('2020/08.txt', 'utf-8').trim()
-const { range } = require('lodash')
 
 type Op = 'acc' | 'jmp' | 'nop'
 type Instruction = {

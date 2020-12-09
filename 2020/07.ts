@@ -1,7 +1,7 @@
 const assert = require('assert')
 const fs = require('fs')
 const file = fs.readFileSync('2020/07.txt', 'utf-8').trim()
-const { any, sum } = require('lodash')
+const { sum } = require('lodash')
 
 const parse = (str) =>
   str.split('\n').map((line) => {
