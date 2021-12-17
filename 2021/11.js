@@ -1,7 +1,6 @@
 const fs = require('fs')
 const assert = require('assert')
 const { range, sum, min, every } = require('lodash')
-const { SSL_OP_CRYPTOPRO_TLSEXT_BUG } = require('constants')
 const file = fs.readFileSync('2021/11.txt', 'utf-8').trim()
 
 const parse = (input) =>
