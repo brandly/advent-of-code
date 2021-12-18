@@ -3,23 +3,10 @@ const assert = require('assert')
 const { range, sum, min, every } = require('lodash')
 const file = fs.readFileSync('2021/14.txt', 'utf-8').trim()
 
-const createNode = (char) => ({ char })
-const fromStr = (str) => {
-  const chars = str.split('')
-  const head = createNode(chars[0])
-  let prev = head
-  for (let i = 1; i < chars.length; i++) {
-    const node = createNode(chars[i])
-    prev.next = node
-    prev = node
-  }
-  return head
-}
-
 const parse = (input) => {
   const [template, rules] = input.split('\n\n')
   return {
-    template: fromStr(template),
+    template,
     rules: rules
       .split('\n')
       .map((line) => line.split(' -> '))
@@ -30,38 +17,49 @@ const parse = (input) => {
   }
 }
 
-const step = (chain, rules) => {
-  let current = chain
-  while (current.next) {
-    const { next } = current
-    const pair = current.char + next.char
-
-    if (pair in rules) {
-      const node = createNode(rules[pair])
-      current.next = node
-      node.next = next
-    }
-    current = next
-  }
+const addCount = (obj, pair, count = 1) => {
+  if (!(pair in obj)) obj[pair] = 0
+  obj[pair] += count
+  return obj
 }
 
-const countChain = (chain, result = {}) => {
-  const { char } = chain
-  if (char in result) result[char]++
-  else result[char] = 1
-  return chain.next ? countChain(chain.next, result) : result
-}
+const countElements = (str) =>
+  str.split('').reduce((out, char) => addCount(out, char), {})
+
+const countPairs = (str) =>
+  str.split('').reduce((out, char, i, list) => {
+    if (i === 0) return out
+    const key = list[i - 1] + char
+    addCount(out, key)
+    return out
+  }, {})
 
 const diffAfterIterations = (input, iterations) => {
-  const { template, rules } = parse(input)
+  let { template, rules } = parse(input)
 
-  const chain = template
+  let elementCount = countElements(template)
+  let pairCounts = countPairs(template)
+
   for (let i = 0; i < iterations; i++) {
-    console.log('iterating', i)
-    step(chain, rules)
+    const result = {}
+    Object.entries(pairCounts).forEach(([pair, count]) => {
+      if (pair in rules) {
+        const middleman = rules[pair]
+        const [a, b] = pair.split('')
+
+        addCount(elementCount, middleman, count)
+
+        addCount(result, a + middleman, count)
+        addCount(result, middleman + b, count)
+      } else {
+        addCount(result, pair, count)
+      }
+    })
+
+    pairCounts = result
   }
 
-  const sorted = Object.values(countChain(chain)).sort((a, b) => {
+  const sorted = Object.values(elementCount).sort((a, b) => {
     if (a < b) return 1
     if (a > b) return -1
     return 0
@@ -78,4 +76,5 @@ const part2 = (input) => diffAfterIterations(input, 40)
   assert.equal(part2(example), 2188189693529)
 }
 
-// console.log(part1(file))
+console.log(part1(file))
+console.log(part2(file))
